@@ -1,12 +1,19 @@
 import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 
 # Shared properties
 class PostBase(BaseModel):
     text: str = Field(..., description="Mandatory. The text of the post. Must be less than 1MB in size")
+
+    @validator("text")
+    def check_text_size(cls, value):
+        bytesize = len(value.encode("utf-8"))
+        if bytesize > 1024 * 1024 * 1024:
+            raise ValueError("Text too large")
+        return value
 
 
 # Properties to receive via API on creation
