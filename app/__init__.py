@@ -1,8 +1,12 @@
+import inspect
+import re
 from typing import Union
 
 import fastapi_plugins
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from fastapi.openapi.utils import get_openapi
+from fastapi.routing import APIRoute
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import ValidationError
@@ -95,6 +99,64 @@ async def on_shutdown() -> None:
 def get_config():
     return Settings()
 
+
+# The function below allows fastapi-jwt-auth to show lock icons for restricted endpoints
+# See https://github.com/IndominusByte/fastapi-jwt-auth/issues/34#issuecomment-769234395
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    openapi_schema = get_openapi(
+        title=settings.APPLICATION_NAME,
+        version=settings.APPLICATION_VERSION,
+        routes=app.routes,
+        servers=app.servers,
+        description="""Backend Development Server
+## Authentication
+
+This API uses token authentication (Bearer in HTTP Header). First you retrieve a new Bearer token using login/password authentication. After that you can use it to access other resources.
+
+**Bearer token example**
+
+`eYFuat5lz1y5v0LrCt7LfqJpo1AkdLgm7LbY6eRibN4NYw9Srf6aMIRJM8KbTwM6`
+    )""",
+    )
+
+    openapi_schema["components"]["securitySchemes"] = {
+        "Bearer Auth": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "Authorization",
+            "description": (
+                "Type in the *'Value'* input box below: **'Bearer &lt;JWT&gt;'**, where JWT is the access token"
+            ),
+        }
+    }
+
+    api_routes = [route for route in app.routes if isinstance(route, APIRoute)]
+
+    for route in api_routes:
+        path = getattr(route, "path")
+        endpoint = getattr(route, "endpoint")
+        methods = [method.lower() for method in getattr(route, "methods")]
+
+        for method in methods:
+            # access_token
+            if (
+                re.search("jwt_required", inspect.getsource(endpoint))
+                or re.search("fresh_jwt_required", inspect.getsource(endpoint))
+                or re.search("jwt_optional", inspect.getsource(endpoint))
+            ):
+                try:
+                    openapi_schema["paths"][path][method]["security"] = [{"Bearer Auth": []}]
+                except Exception:
+                    pass
+
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
 
 app.include_router(
     api_router,

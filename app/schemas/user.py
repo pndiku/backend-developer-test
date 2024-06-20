@@ -6,8 +6,12 @@ from pydantic import BaseModel, EmailStr, Field, SecretStr
 
 
 class UserJWTModel(BaseModel):
-    access_token: str
-    expires_at: datetime.datetime
+    access_token: str = Field(
+        ..., description="The Bearer Token for accessing resources", examples=["eyj0exaioijkv1qilcjhbgcioijiuzi..."]
+    )
+    expires_at: datetime.datetime = Field(
+        ..., description="The timestamp (in UTC) for when the token will expire", examples=["2021-10-30T15:00:00Z"]
+    )
 
 
 class UserJWTResponse(BaseModel):
@@ -17,8 +21,8 @@ class UserJWTResponse(BaseModel):
 
 # Shared properties
 class UserBase(BaseModel):
-    email: EmailStr
-    password: SecretStr
+    email: EmailStr = Field(..., description="Mandatory. The email address of the user", examples=["john@example.com"])
+    password: SecretStr = Field(..., description="Mandatory. The user's password", examples=["password"])
 
 
 # Properties to receive via API on creation
@@ -31,8 +35,10 @@ class UserUpdate(UserBase):
 
 
 class UserInDBBase(UserBase):
-    id: int
-    created_at: Optional[datetime.datetime]
+    id: int = Field(..., description="The unique ID of the user in the database", examples=[1])
+    created_at: datetime.datetime = Field(
+        ..., description="The timestamp for when the user was created", examples=["2024-06-20T19:00:12"]
+    )
 
     class Config:
         orm_mode = True
