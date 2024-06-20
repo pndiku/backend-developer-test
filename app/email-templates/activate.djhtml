@@ -1,0 +1,28 @@
+<html>
+    <body>
+        <p>Dear {{ name }},</p>
+        <p>
+            You recently registered for, or an account was created for you, on the 50MWAS Platform.
+        </p>
+        <p></p>
+        <p>
+            Please click on the link below to verify your registration
+        </p>
+        <p>
+            <a href="{{ confirm_url }}"> {{ confirm_url }} </a>
+        </p>
+        <p>
+            If clicking on the link does not work, copy the link and paste it in your browser
+        </p>
+        <p></p>
+        <p>
+            After verification, you will be able to login with these details: <br>
+            Email Address: <b>{{ email }}</b><br>
+            Password: <b>{{ password }}</b>
+        </p>
+        <p>
+            Regards,<br>
+            USE Easy Portal
+        </p>
+    </body>
+</html>

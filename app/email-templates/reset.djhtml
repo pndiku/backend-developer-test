@@ -1,0 +1,23 @@
+<html>
+    <body>
+        <p>Dear {{ name }},</p>
+        <p>
+            You recently requested for a new password to access your account on the 50MWAS Platform.
+        </p>
+        <p></p>
+        <p>
+            Please click on the link below to reset your password
+        </p>
+        <p>
+            <a href="{{ reset_url }}"> {{ reset_url }} </a>
+        </p>
+        <p>
+            If clicking on the link does not work, copy the link and paste it in your browser
+        </p>
+        <p></p>
+        <p>
+            Regards,<br>
+            USE Easy Portal
+        </p>
+    </body>
+</html>

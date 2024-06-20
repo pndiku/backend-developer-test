@@ -1,0 +1,6 @@
+5    Swiper: get(
+ @router.get("/{id}", response_model=schemas.CountryResponse)
+     country = await cache.hget("country", id)
+     country = crud.country.get(db, country_in.id)
+     country = crud.country.get(db, country_in.id)
+ @router.get("/", response_model=schemas.CountryListResponse)
